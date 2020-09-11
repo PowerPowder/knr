@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h> // for atof()
+#include <math.h>
 
 #define MAXOP 100   // max size od operand or operator
 #define NUMBER '0'  // signal that a number was found
@@ -8,11 +9,21 @@ int getop(char []);
 void push(double);
 double pop(void);
 
+void showtop(void);
+void duplicate(void);
+void swap(void);
+void clear(void);
+
+/*
+    Ex 4-4: 'p' to print, 'd' to duplicate, 's' to swap top two elements, 'c' to clear
+    EX 4-5: '~' for sin, 'e' for exp, '^' for pow
+*/
+
 // reverse Polish calculator
 int main()
 {
     int type;
-    double op2;
+    double op2, tmp;
     char s[MAXOP];
 
     while ((type = getop(s)) != EOF)
@@ -38,6 +49,32 @@ int main()
                     push(pop() / op2);
                 else
                     printf("error: zero divisor\n");
+                break;
+            case '%':
+                op2 = pop();
+                push((int)pop() % (int)op2);
+                break;
+            case '~':
+                push(sin(pop()));
+                break;
+            case 'e':
+                push(exp(pop()));
+                break;
+            case '^':
+                op2 = pop();
+                push(pow(pop(), op2));
+                break;
+            case 'p':
+                showtop();
+                break;
+            case 'd':
+                duplicate();
+                break;
+            case 's':
+                swap();
+                break;
+            case 'c':
+                clear();
                 break;
             case '\n':
                 printf("\t%.8g\n", pop());
@@ -76,6 +113,44 @@ double pop(void)
         return 0.0;
     }
 }
+
+void showtop(void)
+{
+    if (sp > 0)
+        printf("The stack has %g at the top\n", val[sp - 1]);
+    else
+        printf("The stack is empty\n");
+}
+
+void duplicate(void)
+{
+    if (sp > 0)
+        push(val[sp - 1]);
+    else
+        printf("The stack is empty");
+}
+
+void swap(void)
+{
+    if ((sp-2) >= 0)
+    {
+        double value1 = pop();
+        double value2 = pop();
+
+        push(value1);
+        push(value2);
+    }
+    else
+        printf("Not enough values\n");
+}
+
+void clear(void)
+{
+    while (sp > 0)
+        pop();
+}
+
+double v[26];
 
 #include <ctype.h>
 
