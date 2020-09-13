@@ -14,16 +14,20 @@ void duplicate(void);
 void swap(void);
 void clear(void);
 
+void setvar(int, double);
+double getvar(int);
+
 /*
     Ex 4-4: 'p' to print, 'd' to duplicate, 's' to swap top two elements, 'c' to clear
-    EX 4-5: '~' for sin, 'e' for exp, '^' for pow
+    Ex 4-5: '~' for sin, 'e' for exp, '^' for pow
+    Ex 4-6: variables go from A to Z, to write to a variable do @A to @Z
 */
 
 // reverse Polish calculator
 int main()
 {
-    int type;
-    double op2, tmp;
+    int type, expectvar, prevtype;
+    double op2;
     char s[MAXOP];
 
     while ((type = getop(s)) != EOF)
@@ -77,12 +81,32 @@ int main()
                 clear();
                 break;
             case '\n':
-                printf("\t%.8g\n", pop());
+                if (!(prevtype >= 'A' && prevtype <= 'Z'))
+                    printf("\t%.8g\n", pop());
+                else
+                    printf("\t%.8g\n", getvar(prevtype));
+                break;
+            case '@':
+                expectvar = 1;
+                break;
+            case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
+            case 'H': case 'I': case 'J': case 'K': case 'L': case 'M': case 'N':
+            case 'O': case 'P': case 'Q': case 'R': case 'S': case 'T': case 'U':
+            case 'V': case 'W': case 'X': case 'Y': case 'Z':
+                if (expectvar)
+                {
+                    setvar(type, pop());
+                    expectvar = 0;
+                }
+                else
+                    push(getvar(type));
                 break;
             default:
                 printf("error: unknown command %s\n", s);
                 break;
         }
+
+        prevtype = type;
     }
 
     return 0;
@@ -150,7 +174,30 @@ void clear(void)
         pop();
 }
 
-double v[26];
+double v[27];
+
+void setvar(int var, double val)
+{
+    if (var == 0)
+        v[26] = val;
+
+    int pos= var - 'A';
+
+    if (pos >= 0)
+        v[pos] = val;
+    else
+        printf("error: value not stored in var\n");
+}
+
+double getvar(int var)
+{
+    int pos = var - 'A';
+
+    if (pos >= 0)
+        return v[pos];
+    else
+        return 0.0;
+}
 
 #include <ctype.h>
 
