@@ -4,15 +4,18 @@
 // convert an integer into a string by calling a recursive routine.
 void itoa(int n, char s[])
 {
+    static int i = 0;
+
     if (n < 0)
     {
-        putchar('-');
+        s[i++] = '-';
         n = -n;
     }
 
     if (n / 10)
         itoa(n / 10, s);
-    putchar(n % 10 + '0');
+    
+    s[i++] = n % 10 + '0';
 }
 
 /*
@@ -39,5 +42,5 @@ int main(void)
 {
     char s[100];
     itoa(-189, s);
-    //printf("%s", s);
+    printf("%s", s);
 }
