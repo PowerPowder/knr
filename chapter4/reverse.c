@@ -1,20 +1,23 @@
 #include <stdio.h>
 
-void reverse(char s[])
+void reverse(char s[], char t[])
 {
     static int i = 0;
+    static int j = 0;
 
     if (s[i++] == '\0')
-        putchar(s[--i]);
+        t[0] = s[--i];
     else
     {
-        reverse(s);
-        putchar(s[--i]);
+        reverse(s, t);
+        t[j++] = s[--i];
     }
 }
 
 int main()
 {
     char s[] = "abcdefg";
-    reverse(s);
+    char t[100];
+    reverse(s, t);
+    printf("s: %s\nt: %s\n", s, t);
 }
