@@ -21,7 +21,8 @@ int getint(int *pn)
     sign = (c == '-') ? -1 : 1;
 
     if (c == '+' || c == '-')
-        c = getch();
+        while (isspace(c = getch()) || c == '+' || c == '-')
+            ;
     
     for (*pn = 0; isdigit(c); c = getch())
         *pn = 10 * *pn + (c - '0');
@@ -43,8 +44,15 @@ int main()
     printf("\n");
 
     int i;
-    for (i = 0; i < 100; i++)
-        printf("%d, ", array[i]);
+    for (i = 0; i < n; i++)
+    {
+        printf("%d", array[i]);
+
+        if (i+1 < n)
+            printf(", ");
+    }
+
+    printf("\n");
 
     return 0;
 }
