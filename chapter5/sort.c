@@ -5,7 +5,7 @@
 
 char *lineptr[MAXLINES];
 
-int readlines(char *lineptr[], int nlines);
+int readlines(char *lineptr[], int nlines, char buffer[]);
 void writelines(char *lineptr[], int nlines);
 
 void qsort(char *lineptr[], int left, int right);
@@ -13,8 +13,9 @@ void qsort(char *lineptr[], int left, int right);
 int main()
 {
     int nlines;
+    char buffer[10000];
 
-    if ((nlines = readlines(lineptr, MAXLINES)) >= 0)
+    if ((nlines = readlines(lineptr, MAXLINES, buffer)) >= 0)
     {
         qsort(lineptr, 0, nlines-1);
         writelines(lineptr, nlines);
@@ -32,21 +33,26 @@ int main()
 int agetline(char *, int);
 char *alloc(int);
 
-int readlines(char *lineptr[], int maxlines)
+int readlines(char *lineptr[], int maxlines, char buffer[])
 {
     int len, nlines;
     char *p, line[MAXLEN];
 
+    char *index = buffer;
+
     nlines = 0;
     while ((len = agetline(line, MAXLEN)) > 0)
     {
-        if (nlines >= maxlines || (p = alloc(len)) == NULL)
+        if (nlines >= maxlines || (buffer + 10000 - index) <= len)
             return -1;
         else
         {
+            p = index;
             line[len-1] = '\0';
             strcpy(p, line);
             lineptr[nlines++] = p;
+
+            index += len;
         }
     }
 
