@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
 
 #define TABSIZE 8
 #define MAXLINE 100
@@ -133,7 +133,7 @@ void entab2()
     }
 }
 
-void entab()
+void entab(int tablen)
 {
     // get character
     // if character is space then increment spaces and don't print anything
@@ -155,10 +155,11 @@ void entab()
             spaces++;
         else if (c != ' ' && spaces > 0)
         {
-            spaces = spaces + ((count - spaces) - 1) % TABSIZE;
+            if (spaces > tablen)
+                spaces = spaces + ((count - spaces) - 1) % tablen;
 
-            int tabs = (spaces - (spaces % TABSIZE)) / TABSIZE;
-            spaces = spaces % TABSIZE;
+            int tabs = (spaces - (spaces % tablen)) / tablen;
+            spaces = spaces % tablen;
 
             while (tabs-- > 0)
                 putchar('\t');
@@ -174,9 +175,10 @@ void entab()
     }
 }
 
-int main()
+int main(int argc, char *argv[])
 {
-    //detab();
-    entab();
-    //entab2();
+    if (argc > 1 && (atoi(argv[1]) > 0))
+        entab(atoi(argv[1]));
+    else
+        entab(TABSIZE);
 }
