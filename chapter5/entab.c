@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define TABSIZE 8
 #define MAXLINE 100
@@ -49,9 +50,6 @@ char* allocspaces(int i)
     return s;
 }
 
-// entab -m +n
-// means tab stops ever n columns, starting at column m.
-
 int addspaces(int i)
 {
     int j, count = 0;
@@ -66,7 +64,7 @@ int addspaces(int i)
 
 // Write a program detab that replaces tabs in the input with the proper number
 //of blanks to space to the next tab stop. Assume a fixed set of tab stops, say every n columns
-void detab()
+void detab(int startcol, int tablen)
 {
     int c, i, count = 1;
     while ((c = getchar()) != EOF)
@@ -76,9 +74,9 @@ void detab()
 
         if (c != '\t')
             printf("%c", c);
-        else
+        else if (count > startcol)
         {
-            int spaces = TABSIZE - ((count) % TABSIZE);
+            int spaces = tablen - ((count) % tablen);
             count += addspaces(spaces);
             continue;
         }
@@ -133,7 +131,7 @@ void entab2()
     }
 }
 
-void entab(int tablen)
+void entab(int startcol, int tablen)
 {
     // get character
     // if character is space then increment spaces and don't print anything
@@ -151,23 +149,26 @@ void entab(int tablen)
         if (c == '\n')
             count = 0;
 
-        if (c == ' ')
-            spaces++;
-        else if (c != ' ' && spaces > 0)
+        if (count > startcol)
         {
-            if (spaces > tablen)
-                spaces = spaces + ((count - spaces) - 1) % tablen;
+            if (c == ' ')
+                spaces++;
+            else if (c != ' ' && spaces > 0)
+            {
+                if (spaces > tablen)
+                    spaces = spaces + ((count - spaces) - 1) % tablen;
 
-            int tabs = (spaces - (spaces % tablen)) / tablen;
-            spaces = spaces % tablen;
+                int tabs = (spaces - (spaces % tablen)) / tablen;
+                spaces = spaces % tablen;
 
-            while (tabs-- > 0)
-                putchar('\t');
-            
-            while (spaces-- > 0)
-                putchar(' ');
+                while (tabs-- > 0)
+                    putchar('\t');
+                
+                while (spaces-- > 0)
+                    putchar(' ');
 
-            spaces = 0;
+                spaces = 0;
+            }
         }
 
         if (c != ' ')
@@ -175,10 +176,30 @@ void entab(int tablen)
     }
 }
 
+// extend entab and detab to accept the shorthand: entab -m +n
+// to mean tab stops every n columns, starting at column m.
 int main(int argc, char *argv[])
 {
+    /*
     if (argc > 1 && (atoi(argv[1]) > 0))
         entab(atoi(argv[1]));
     else
         entab(TABSIZE);
+    */
+
+    int startcol = 0;
+    int tablen = TABSIZE;
+
+    int i = 1;
+    while (i < argc)
+    {
+        if (strcmp(argv[i], "-m") == 0)
+            startcol = atoi(argv[i+1]);
+        else if (strcmp(argv[i], "-n") == 0)
+            tablen = atoi(argv[i+1]);
+        i++;
+    }
+
+    //entab(startcol, tablen);
+    detab(startcol, tablen);
 }
