@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #define MAXLINES 5000
 char *lineptr[MAXLINES];
@@ -10,21 +11,42 @@ void writelines(char *lineptr[], int nlines);
 void qsort2(void *lineptr[], int left, int right, int (*comp)(void *, void *), int reverse);
 
 int numcmp(char *, char *);
+int fstrcmp(char *, char *);
+int fstrcmp2(char *, char *);
 
 int main(int argc, char *argv[])
 {
     int nlines;
+
     int numeric = 0;
+    int folded = 0;
+
     int reverse = 0;
 
-    if (argc > 1 && strcmp(argv[1], "-n") == 0)
-        numeric = 1;
-    if ((argc > 1 && strcmp(argv[1], "-r") == 0) || argc > 2 && strcmp(argv[2], "-r") == 0)
-        reverse = 1;
+    int i;
+    for (i = 0; i < argc; i++)
+    {
+        if (strcmp(argv[i], "-n") == 0)
+            numeric = 1;
+        else if (strcmp(argv[i], "-r") == 0)
+            reverse = 1;
+        else if (strcmp(argv[i], "-f") == 0)
+            folded = 1;
+    }
+
     if ((nlines = readlines(lineptr, MAXLINES)) >= 0)
     {
+        int (*comp)(void *, void *);
+
+        if (numeric)
+            comp = numcmp;
+        else if (folded)
+            comp = fstrcmp2;
+        else
+            comp = strcmp;
+
         qsort2((void **) lineptr, 0, nlines-1,
-            numeric ? (int (*)(void*, void*)) numcmp : (int (*)(void*, void*)) strcmp,
+            comp,
             reverse);
         printf("\n");
         writelines(lineptr, nlines);
@@ -80,6 +102,34 @@ int numcmp(char *s1, char *s2)
         return 1;
     else
         return 0;
+}
+
+int fstrcmp(char *s1, char *s2)
+{
+    for ( ; *s1 == *s2 || (*s1)+32 == *s2 || (*s2)+32 == *s1; s1++, s2++)
+        if (*s1 == '\0')
+            return 0;
+
+    return *s1 - *s2;
+}
+
+int fstrcmp2(char *s1, char *s2)
+{
+    char temp1[strlen(s1)];
+    char temp2[strlen(s2)];
+
+    strcpy(temp1, s1);
+    strcpy(temp2, s2);
+
+    int i = 0;
+    while (temp1[i] = toupper(temp1[i]))
+        i++;
+
+    i = 0;
+    while (temp2[i] = toupper(temp2[i]))
+        i++;
+
+    return strcmp(temp1, temp2);
 }
 
 void swap(void *v[], int i, int j)
