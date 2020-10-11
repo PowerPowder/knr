@@ -7,7 +7,7 @@ char *lineptr[MAXLINES];
 int readlines(char *lineptr[], int nlines);
 void writelines(char *lineptr[], int nlines);
 
-void qsort2(void *lineptr[], int left, int right, int (*comp)(void *, void *));
+void qsort2(void *lineptr[], int left, int right, int (*comp)(void *, void *), int reverse);
 
 int numcmp(char *, char *);
 
@@ -15,13 +15,18 @@ int main(int argc, char *argv[])
 {
     int nlines;
     int numeric = 0;
+    int reverse = 0;
 
-    if(argc > 1 && strcmp(argv[1], "-n") == 0)
+    if (argc > 1 && strcmp(argv[1], "-n") == 0)
         numeric = 1;
-    if((nlines = readlines(lineptr, MAXLINES)) >= 0)
+    if ((argc > 1 && strcmp(argv[1], "-r") == 0) || argc > 2 && strcmp(argv[2], "-r") == 0)
+        reverse = 1;
+    if ((nlines = readlines(lineptr, MAXLINES)) >= 0)
     {
         qsort2((void **) lineptr, 0, nlines-1,
-        numeric ? (int (*)(void*, void*)) numcmp : (int (*)(void*, void*)) strcmp);
+            numeric ? (int (*)(void*, void*)) numcmp : (int (*)(void*, void*)) strcmp,
+            reverse);
+        printf("\n");
         writelines(lineptr, nlines);
         return 0;
     }
@@ -32,21 +37,33 @@ int main(int argc, char *argv[])
     }
 }
 
-void qsort2(void *v[], int left, int right, int(*comp)(void *, void *))
+void qsort2(void *v[], int left, int right, int (*comp)(void *, void *), int reverse)
 {
     int i, last;
     void swap(void *v[], int, int);
 
-    if(left >= right)
+    if (left >= right)
         return;
     swap(v, left, (left + right) / 2);
     last = left;
-    for(i = left + 1; i <= right; i++) 
-        if((*comp)(v[i], v[left]) < 0)
-            swap(v, ++last, i);
+
+    for (i = left + 1; i <= right; i++) 
+    {
+        if (reverse)
+        {
+            if ((*comp)(v[i], v[left]) > 0)
+                swap(v, ++last, i);
+        }
+        else
+        {
+            if ((*comp)(v[i], v[left]) < 0)
+                swap(v, ++last, i);
+        }
+    }
+
     swap(v, left, last);
-    qsort2(v, left, last - 1, comp);
-    qsort2(v, last + 1, right, comp);
+    qsort2(v, left, last - 1, comp, reverse);
+    qsort2(v, last + 1, right, comp, reverse);
 }
 
 #include <stdlib.h>
