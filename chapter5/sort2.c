@@ -13,6 +13,8 @@ void qsort2(void *lineptr[], int left, int right, int (*comp)(void *, void *), i
 int numcmp(char *, char *);
 int fstrcmp(char *, char *);
 int fstrcmp2(char *, char *);
+int dircmp(char *, char *);
+int fdircmp(char *, char *);
 
 int main(int argc, char *argv[])
 {
@@ -20,6 +22,7 @@ int main(int argc, char *argv[])
 
     int numeric = 0;
     int folded = 0;
+    int dirorder = 0;
 
     int reverse = 0;
 
@@ -32,6 +35,8 @@ int main(int argc, char *argv[])
             reverse = 1;
         else if (strcmp(argv[i], "-f") == 0)
             folded = 1;
+        else if (strcmp(argv[i], "-d") == 0)
+            dirorder = 1;
     }
 
     if ((nlines = readlines(lineptr, MAXLINES)) >= 0)
@@ -40,6 +45,10 @@ int main(int argc, char *argv[])
 
         if (numeric)
             comp = numcmp;
+        else if (dirorder && folded)
+            comp = fdircmp;
+        else if (dirorder)
+            comp = dircmp;
         else if (folded)
             comp = fstrcmp2;
         else
@@ -122,6 +131,67 @@ int fstrcmp2(char *s1, char *s2)
     strcpy(temp2, s2);
 
     int i = 0;
+    while (temp1[i] = toupper(temp1[i]))
+        i++;
+
+    i = 0;
+    while (temp2[i] = toupper(temp2[i]))
+        i++;
+
+    return strcmp(temp1, temp2);
+}
+
+// only compare with letters, numbers and blanks
+int dircmp(char *s1, char *s2)
+{
+    char temp1[strlen(s1)];
+    char temp2[strlen(s2)];
+
+    int i = 0;
+    while (*s1 != '\0')
+    {
+        if ((*s1 >= 'A' && *s1 <= 'Z') || (*s1 >= 'a' && *s1 <= 'z') || isdigit(*s1) || *s1 == ' ')
+            temp1[i++] = *s1;
+        s1++;
+    }
+    temp1[i] = '\0';
+
+    i = 0;
+    while (*s2 != '\0')
+    {
+        if ((*s2 >= 'A' && *s2 <= 'Z') || (*s2 >= 'a' && *s2 <= 'z') || isdigit(*s2) || *s2 == ' ')
+            temp2[i++] = *s2;
+        s2++;
+    }
+    temp2[i] = '\0';
+
+    return strcmp(temp1, temp2);
+}
+
+int fdircmp(char *s1, char *s2)
+{
+    char temp1[strlen(s1)];
+    char temp2[strlen(s2)];
+
+    int i = 0;
+    while (*s1 != '\0')
+    {
+        if ((*s1 >= 'A' && *s1 <= 'Z') || (*s1 >= 'a' && *s1 <= 'z') || isdigit(*s1) || *s1 == ' ')
+            temp1[i++] = *s1;
+        s1++;
+    }
+    temp1[i] = '\0';
+
+    i = 0;
+    while (*s2 != '\0')
+    {
+        if ((*s2 >= 'A' && *s2 <= 'Z') || (*s2 >= 'a' && *s2 <= 'z') || isdigit(*s2) || *s2 == ' ')
+            temp2[i++] = *s2;
+        s2++;
+    }
+    temp2[i] = '\0';
+
+    i = 0;
     while (temp1[i] = toupper(temp1[i]))
         i++;
 
