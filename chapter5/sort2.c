@@ -5,6 +5,8 @@
 #define MAXLINES 5000
 char *lineptr[MAXLINES];
 
+int field = 0;
+
 int readlines(char *lineptr[], int nlines);
 void writelines(char *lineptr[], int nlines);
 
@@ -15,6 +17,9 @@ int fstrcmp(char *, char *);
 int fstrcmp2(char *, char *);
 int dircmp(char *, char *);
 int fdircmp(char *, char *);
+int fieldcmp(char *, char *);
+
+void getfield(char[], char *);
 
 int main(int argc, char *argv[])
 {
@@ -37,6 +42,8 @@ int main(int argc, char *argv[])
             folded = 1;
         else if (strcmp(argv[i], "-d") == 0)
             dirorder = 1;
+        else if (strcmp(argv[i], "-s") == 0)
+            field = atoi(argv[i+1]);
     }
 
     if ((nlines = readlines(lineptr, MAXLINES)) >= 0)
@@ -82,13 +89,39 @@ void qsort2(void *v[], int left, int right, int (*comp)(void *, void *), int rev
     {
         if (reverse)
         {
-            if ((*comp)(v[i], v[left]) > 0)
-                swap(v, ++last, i);
+            if (field != 0)
+            {
+                char t[50];
+                char s[50];
+                getfield(t, v[i]);
+                getfield(s, v[left]);
+
+                if ((*comp)(t, s) > 0)
+                    swap(v, ++last, i);
+            }
+            else
+            {
+                if ((*comp)(v[i], v[left]) > 0)
+                    swap(v, ++last, i);
+            }
         }
         else
         {
-            if ((*comp)(v[i], v[left]) < 0)
-                swap(v, ++last, i);
+            if (field != 0)
+            {
+                char t[50];
+                char s[50];
+                getfield(t, v[i]);
+                getfield(s, v[left]);
+
+                if ((*comp)(t, s) > 0)
+                    swap(v, ++last, i);
+            }
+            else
+            {
+                if ((*comp)(v[i], v[left]) < 0)
+                    swap(v, ++last, i);
+            }
         }
     }
 
@@ -200,6 +233,56 @@ int fdircmp(char *s1, char *s2)
         i++;
 
     return strcmp(temp1, temp2);
+}
+
+// a space is the delimiter for a field
+int fieldcmp(char *s1, char *s2)
+{
+    int i;
+    char *tokens1[10];
+    char *tokens2[10];
+
+    char string1[strlen(s1)];
+    strcpy(string1, s1);
+
+    char *token = strtok(string1, " ");
+    while (token != NULL)
+    {
+        tokens1[i++] = token;
+        token = strtok(NULL, " ");
+    }
+
+    char string2[strlen(s2)];
+    strcpy(string2, s2);
+
+    i = 0;
+    token = strtok(string2, " ");
+    while (token != NULL)
+    {
+        tokens2[i++] = token;
+        token = strtok(NULL, " ");
+    }
+
+    return strcmp(tokens1[field-1], tokens2[field-1]);
+}
+
+// a space is the delimiter for a field
+void getfield(char t[], char *s)
+{
+    int i = 0;
+    char *tokens[10];
+
+    char string[strlen(s)];
+    strcpy(string, s);
+
+    char *token = strtok(string, " ");
+    while (token != NULL)
+    {
+        tokens[i++] = token;
+        token = strtok(NULL, " ");
+    }
+
+    strcpy(t, tokens[field - 1]);
 }
 
 void swap(void *v[], int i, int j)
