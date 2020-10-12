@@ -4,10 +4,10 @@
 
 #define MAXTOKEN 100
 
-enum { NAME, PARENS, BRACKETS };
+#define YES 1
+#define NO 0
 
-void dcl(void);
-void dirdcl(void);
+enum { NAME, PARENS, BRACKETS };
 
 int gettoken(void);
 int tokentype;
@@ -15,6 +15,7 @@ char token[MAXTOKEN];
 char name[MAXTOKEN];
 char datatype[MAXTOKEN];
 char out[1000];
+int addbrakets = NO;
 
 int main()
 {
@@ -29,7 +30,11 @@ int main()
                 strcat(out, token);
             else if (type == '*')
             {
-                sprintf(temp, "(*%s)", out);
+                if (addbrakets)
+                    sprintf(temp, "(*%s)", out);
+                else
+                    sprintf(temp, "*%s", out);
+
                 strcpy(out, temp);
             }
             else if (type == NAME)
@@ -59,6 +64,7 @@ int gettoken(void)
         if ((c = getch()) == ')')
         {
             strcpy(token, "()");
+            addbrakets = YES;
             return tokentype = PARENS;
         }
         else
@@ -72,6 +78,7 @@ int gettoken(void)
         for (*p++ = c; (*p++ = getch()) != ']'; )
             ;
         *p = '\0';
+        addbrakets = YES;
         return tokentype = BRACKETS;
     }
     else if (isalpha(c))
